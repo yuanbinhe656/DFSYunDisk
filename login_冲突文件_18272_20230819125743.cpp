@@ -15,7 +15,7 @@
 #include <QUrl>
 #include "common/logininfoinstance.h"
 #include "common/des.h"
-#include <QNetworkAccessManager>
+
 
 
 Login::Login(QWidget *parent) :
@@ -66,8 +66,6 @@ Login::Login(QWidget *parent) :
     ui->reg_confirmPwd->setText("123456");
     ui->reg_phone->setText("11311111111");
     ui->reg_mail->setText("abc1@qq.com");
-    ui->port->setText("80");
-    ui->ip->setText("192.168.231.128");
 
 #endif
 
@@ -272,21 +270,31 @@ void Login::on_regButton_clicked()
     // 注册信息打包成json格式
     QByteArray array = setRegisterJson(userName, nickName, m_cm.getStrMd5(passwd), phone, mail);
     qDebug()<< "register json data" << array;
-    cout << "register";
+
     // 设置连接服务器要发送的url
     QNetworkRequest request;
     QString url = QString("http://%1:%2/reg").arg(ui->ip->text()).arg(ui->port->text());
     request.setUrl(QUrl(url));
-    qDebug()<< "register json data" << QString("http://%1:%2/reg").arg(ui->ip->text()).arg(ui->port->text());
+    // 设置请求头
     request.setHeader(QNetworkRequest::ContentTypeHeader,QVariant("aoolication/json"));
     request.setHeader(QNetworkRequest::ContentLengthHeader,QVariant(array.size()));
     // 发送数据
     QNetworkReply *reply = m_manager->post(request,array);
+    // 设置收到消息的槽函数
+    // 设置错误信息
+
+
+
+
+
+
+
+
+
     connect(reply, &QNetworkReply::readyRead,[=]{
 
         // 读server返回的数据
         QByteArray jsonData = reply->readAll();
-        cout <<jsonData;
         /*
          * 注册 -- server 返回的json格式数据：
          * 成功         {“code”：“002”}
