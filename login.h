@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <mainwindow.h>
 #include "common/common.h"
+#include "selfwidget/mytitlebar.h"
 
 namespace Ui {
 class Login;

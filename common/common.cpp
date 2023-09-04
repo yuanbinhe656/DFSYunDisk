@@ -366,12 +366,107 @@ QString common::getCode(QByteArray json)
     return "";
 }
 
+// 传输数据记录到本地文件，user操作用户 name 操作文件 code：操作码，path：本地文件路径
+// 本地文件保存的格式为 首行文件信息 创建时间，操作结果 文件名
+// todo filename where
 void common::writeRecord(QString user, QString name, QString code, QString path)
 {
+    // 文件名字，登录用户即为文件名
+    QString fileName = path + user;
+    // 检查目录是否存在，若不存在，则创建目录
+    QDir dir(path);
+    cout << "path" << path;
+    if(!dir.exists())
+    {
+        // 目录不存在 创建
+        if( dir.mkpath(path))
+        {
+            cout << path << "目录创建成功";
+        }
+        else
+        {
+            cout << path << "目录创建失败";
+        }
+    }
+    cout << "fileName" << fileName.toUtf8().data();
+    QByteArray array;
+    QFile file(fileName);
+
+    // 如果文件存在，先读取文件记录原来内容
+    // 新的文件记录保存在上面，先把之前的文件内容保存，在添加一条新记录，最后将老文件记录添加到新记录的后面
+    if( true == file.exists())
+    {
+        if( false == file.open(QIODevice::ReadOnly))
+        {
+            cout << "file open err";
+        }
+        // 读取文件原来内容
+        array = file.readAll();
+        file.close();
+    }
+    if (false == file.open(QIODevice::WriteOnly))
+    {
+        cout << " file open writeonly err";
+        return ;
+    }
+    // 记录包操作
+    // xxx.jpg 2023年8月19日12：04：49 秒传成功
+    // 获取当前时间
+    QDateTime time = QDateTime::currentDateTime();// 获取系统当前时间
+    QString timeStr = time.toString("yyyy-MM-dd hh:mm:ss ddd"); // 设置格式
+    /*
+       秒传文件：
+            文件已存在：{"code":"005"}
+            秒传成功：  {"code":"006"}
+            秒传失败：  {"code":"007"}
+        上传文件：
+            成功：{"code":"008"}
+            失败：{"code":"009"}
+        下载文件：
+            成功：{"code":"010"}
+            失败：{"code":"011"}
+            */
+    QString actionStr;
+    if( code == "005" )
+    {
+        actionStr = "上传失败，文件已存在";
+    }
+    else if ( code == "006")
+    {
+        actionStr = "秒传成功";
+    }
+    else if ( code == "008")
+    {
+        actionStr = "上传成功";
+    }
+    else if ( code == "009")
+    {
+        actionStr = "上传失败";
+    }
+    else if ( code == "0010")
+    {
+        actionStr = "下载成功";
+    }
+    else if ( code == "0011")
+    {
+        actionStr = "下载失败";
+    }
+    QString str = QString("[%1]\t%2\t[%3]\r\n").arg(name).arg(timeStr).arg(actionStr);
+    cout <<str.toUtf8().data();
+
+    //  先转化为本地字符集，tolocal
+    file.write( str.toLocal8Bit() );
+    if( array.isEmpty() == false )
+    {
+        // 将原来内容添加到新记录后面
+        file.write(array);
+    }
+    file.close();
 
 }
 
 QNetworkAccessManager *common::getNetManager()
 {
+    // 应用程序一般只有一个
     return m_netManager;
 }

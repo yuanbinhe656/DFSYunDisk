@@ -115,7 +115,11 @@ Login::Login(QWidget *parent) :
         }
     });
 
-    // todo 切换用户 changeUser
+    // 切换用户 changeUser
+    connect(m_mainWin,&MainWindow::changeUser,[=](){
+        m_mainWin->hide();
+        this->show();
+    });
 
 }
 void Login:: paintEvent(QPaintEvent * event)
@@ -422,9 +426,22 @@ void Login::on_login_btn_clicked()
              cout << "登录成功";
 
              //设置登录信息，显示文件列表界面需要使用这些信息
-             // todo
+             logininfoinstance *p = logininfoinstance::getInstance();
+             // 获取单例
+             p->setLoginInfo(user, ip,port,tmpList.at(1));
+             cout << p->getUser().toUtf8().data() << "," << p->getIp() << "," << p->getPort() << tmpList.at(1);
+
+             // 当前窗口隐藏
+             this->hide();
+             // 主窗口显示
+             m_mainWin->showMainWindow();
 
          }
+         else
+         {
+             QMessageBox::warning(this, "登录失败", "用户名或密码不正确！！！");
+         }
+         reply->deleteLater();
     });
 
 }
